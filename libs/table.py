@@ -11,7 +11,7 @@ from .player import Player
 import logging
 from .storage import Storage
 
-MAX_AWAIT = 60
+MAX_AWAIT = 20
 INITIAL_CHIPS = 1000
 INITIAL_TABLE_CHIPS = 200
 
