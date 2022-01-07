@@ -111,12 +111,12 @@ def leave_table(web_client: slack.WebClient, channel: str, user: str):
                  "Failed to join the table, because there is no opened game in this channel.")
         return
     table_id = channels[channel].table_id
-    nplayers, err = gameManager.leave(table_id, user)
+    nplayers, chips, err = gameManager.leave(table_id, user)
     if err is not None:
         send_msg(web_client, channel, err)
         return
 
-    send_msg(web_client, channel, f"just left the table, total player: {nplayers}", user)
+    send_msg(web_client, channel, f"just left the table, chips balance: {chips}, total player: {nplayers}", user)
 
 def rejoin_table(web_client: slack.WebClient, channel: str, user: str, text: str):
     table_id = channels[channel].table_id

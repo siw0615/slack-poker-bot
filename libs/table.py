@@ -88,9 +88,10 @@ class Table:
             return -1, "is not in this table"
         player_pos = self.players_user2pos[userid]
         player = self.players[player_pos]
-        self.storage.leave_table(player.userid, self.uid, player.chip)
+        self.storage.leave_table(player.userid, self.uid)
         self.players[player_pos].set_leaving()
-        return self.get_ready_player_num(), None
+        chips, err = self.storage.fetch_user_chip(userid)
+        return self.get_ready_player_num(), chips, None
 
     def start(self, user_id):
         """Start a game, return (hands, err)"""
