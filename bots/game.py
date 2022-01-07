@@ -118,6 +118,21 @@ def leave_table(web_client: slack.WebClient, channel: str, user: str):
 
     send_msg(web_client, channel, f"just left the table, total player: {nplayers}", user)
 
+def rejoin_table(web_client: slack.WebClient, channel: str, user: str, text: str):
+    table_id = channels[channel].table_id
+    username = _get_username(text, web_client, user)
+
+    nplayers, err = gameManager.leave(table_id, user)
+    
+    if channel not in channels.keys():
+        send_msg(web_client, channel,
+                 "Failed to join the table, because there is no opened game in this channel.")
+        return
+
+    pos, nplayers, total_chip, table_chip, err = gameManager.join(table_id, user, username)
+
+    send_msg(web_client, channel,
+             f"{username} just left and rejoined at position {pos}, total player: {nplayers}, topup to ${table_chip}")
 
 def start_game(web_client: slack.WebClient, channel: str, user: str):
     if channel not in channels.keys():
@@ -279,5 +294,6 @@ commands = (
     Command(r"^help$", echo_help, "help", "get help message"),
     Command(r"^info$", echo_info, "info", "show internal state of the current game", debug=True),
     Command(r"^make me poor$", gain_chip, "make me rich", "gain more chips", debug=True),
-    Command(r"^reset$", reset_chip, "reset_chips", "reset chips to 1000", debug=True),
+    Command(r"^reset$", reset_chip, "reset", "reset chips to 1000", debug=True),
+    Command(r"^rejoin$", rejoin_table, "rejoin", "rejoin table", need_text=True),
 )
