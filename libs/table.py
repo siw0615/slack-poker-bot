@@ -88,7 +88,7 @@ class Table:
             return -1, "is not in this table"
         player_pos = self.players_user2pos[userid]
         player = self.players[player_pos]
-        self.storage.leave_table(player.userid, self.uid)
+        self.storage.leave_table(player.userid, self.uid, player.chip)
         self.players[player_pos].set_leaving()
         chips, err = self.storage.fetch_user_chip(userid)
         return self.get_ready_player_num(), chips, None

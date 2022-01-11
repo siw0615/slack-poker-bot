@@ -139,42 +139,18 @@ class Storage(object):
         cursor.execute("""COMMIT;""")
         cursor.close()
 
-    # def leave_table(self, userid: str, tableid: str, remainChip: int):
-    #     cursor = self.conn.cursor()
-    #     cursor.execute("""BEGIN""")
-    #     try:
-    #         current_chips, err = self.fetch_user_chip(userid)
-    #         if err is not None:
-    #             return err
-    #         cursor.execute(
-    #             """UPDATE user
-    #             SET chips = ?
-    #             WHERE userid = ?;""",
-    #             (current_chips + remainChip, userid)
-    #         )
-    #         cursor.execute(
-    #             """DELETE FROM usertable WHERE usertable.userid = ? and usertable.tableid = ?""",
-    #             (userid, tableid)
-    #         )
-    #     except Exception:
-    #         pass
-    #     finally:
-    #         cursor.execute("""COMMIT;""")
-    #         cursor.close()
-
-    def leave_table(self, userid: str, tableid: str):
+    def leave_table(self, userid: str, tableid: str, remainChip: int):
         cursor = self.conn.cursor()
         cursor.execute("""BEGIN""")
         try:
             current_chips, err = self.fetch_user_chip(userid)
-            table_chips, err = self.fetch_user_table_chip(userid, tableid)
             if err is not None:
                 return err
             cursor.execute(
                 """UPDATE user
                 SET chips = ?
                 WHERE userid = ?;""",
-                (current_chips + table_chips, userid)
+                (current_chips + remainChip, userid)
             )
             cursor.execute(
                 """DELETE FROM usertable WHERE usertable.userid = ? and usertable.tableid = ?""",
@@ -185,6 +161,30 @@ class Storage(object):
         finally:
             cursor.execute("""COMMIT;""")
             cursor.close()
+
+    # def leave_table(self, userid: str, tableid: str):
+    #     cursor = self.conn.cursor()
+    #     cursor.execute("""BEGIN""")
+    #     try:
+    #         current_chips, err = self.fetch_user_chip(userid)
+    #         table_chips, err = self.fetch_user_table_chip(userid, tableid)
+    #         if err is not None:
+    #             return err
+    #         cursor.execute(
+    #             """UPDATE user
+    #             SET chips = ?
+    #             WHERE userid = ?;""",
+    #             (current_chips + table_chips, userid)
+    #         )
+    #         cursor.execute(
+    #             """DELETE FROM usertable WHERE usertable.userid = ? and usertable.tableid = ?""",
+    #             (userid, tableid)
+    #         )
+    #     except Exception:
+    #         pass
+    #     finally:
+    #         cursor.execute("""COMMIT;""")
+    #         cursor.close()
 
 
     # def add_table_chip(self, userid: str, tableid: str, chips: int):
