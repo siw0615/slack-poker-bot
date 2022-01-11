@@ -79,6 +79,13 @@ class Storage(object):
         except Exception:
             return 0, "user not exist"
 
+    def fetch_user_table_chip(self, userid, tableid) -> (int, str):
+        """Given userid, return (chips, err)"""
+        try:
+            return self.conn.execute("""SELECT chips FROM usertable WHERE usertable.userid = ? AND usertable.tableid = ?""", (userid, tableid,)).fetchone()[0], None
+        except Exception:
+            return 0, "user not exist"
+
     def transfer_user_chip_to_table(self, userid: str, max_chip: int, tableid: str) -> (int, int, str):
         """Transfer user chip to a specific table
 
@@ -132,18 +139,42 @@ class Storage(object):
         cursor.execute("""COMMIT;""")
         cursor.close()
 
-    def leave_table(self, userid: str, tableid: str, remainChip: int):
+    # def leave_table(self, userid: str, tableid: str, remainChip: int):
+    #     cursor = self.conn.cursor()
+    #     cursor.execute("""BEGIN""")
+    #     try:
+    #         current_chips, err = self.fetch_user_chip(userid)
+    #         if err is not None:
+    #             return err
+    #         cursor.execute(
+    #             """UPDATE user
+    #             SET chips = ?
+    #             WHERE userid = ?;""",
+    #             (current_chips + remainChip, userid)
+    #         )
+    #         cursor.execute(
+    #             """DELETE FROM usertable WHERE usertable.userid = ? and usertable.tableid = ?""",
+    #             (userid, tableid)
+    #         )
+    #     except Exception:
+    #         pass
+    #     finally:
+    #         cursor.execute("""COMMIT;""")
+            # cursor.close()
+
+    def leave_table(self, userid: str, tableid: str):
         cursor = self.conn.cursor()
         cursor.execute("""BEGIN""")
         try:
             current_chips, err = self.fetch_user_chip(userid)
+            table_chips, err = self.fetch_user_table_chip(userid, tableid)
             if err is not None:
                 return err
             cursor.execute(
                 """UPDATE user
                 SET chips = ?
                 WHERE userid = ?;""",
-                (current_chips + remainChip, userid)
+                (current_chips + table_chips, userid)
             )
             cursor.execute(
                 """DELETE FROM usertable WHERE usertable.userid = ? and usertable.tableid = ?""",
@@ -154,6 +185,36 @@ class Storage(object):
         finally:
             cursor.execute("""COMMIT;""")
             cursor.close()
+
+
+    # def add_table_chip(self, userid: str, tableid: str, chips: int):
+    #     cursor = self.conn.cursor()
+    #     cursor.execute("""BEGIN""")
+    #     current_chips, err = self.fetch_user_table_chip(userid, tableid)
+    #     total_table_chips = chips + current_chips
+    #     chips_all, err = self.fetch_user_chip(userid)
+    #     if err is not None:
+    #         return 0, err
+    #     chip_used = min(chips_all, chips)
+    #     cursor.execute(
+    #         """UPDATE user
+    #         SET chips = ?
+    #         WHERE userid = ?;""",
+    #         (chips_all - chips, userid)
+    #     )
+    #     try:
+    #         cursor.execute(
+    #             """UPDATE usertable
+    #             SET chips = ?
+    #             WHERE tableid=? and userid = ?;""",
+    #             (total_table_chips, tableid, userid)
+    #         )
+    #     except Exception:
+    #         return "change table chip failed"
+    #     finally:
+    #         cursor.execute("""COMMIT;""")
+    #         cursor.close()
+    #     return total_table_chips
 
     def change_table_chip(self, userid: str, tableid: str, chips: int):
         cursor = self.conn.cursor()
@@ -171,16 +232,26 @@ class Storage(object):
             cursor.execute("""COMMIT;""")
             cursor.close()
 
+    def jy_counter(self):
+        cursor = self.conn.cursor()
+        cursor.execute("""BEGIN""")
+        try:
+            counter, err = self.fetch_user_chip('jy')
+            counter = counter + 1
+            cursor.execute(
+                """UPDATE user
+                SET chips = ?
+                WHERE userid = ?;""",
+                (counter, 'jy')
+            )
+        except Exception:
+            return "change table chip failed"
+        finally:
+            cursor.execute("""COMMIT;""")
+            cursor.close()
 
 if __name__ == '__main__':
-    s = Storage('test')
-    s.create_user('test', 200)
-    print(s.fetch_user_chip('test'))
-    t = s.transfer_user_chip_to_table('test', 50, 'table')
-    print(s.fetch_user_chip('test'))
-    s.leave_table('test', 'table', 20)
-    print(s.fetch_user_chip('test'))
-
-    print(s.fetch_user_chip('testttt'))
-    t = s.transfer_user_chip_to_table('testttt', 50, 'table')
-    print(t)
+    s = Storage('PokerGame.dat')
+    s.create_user('jy1', 200)
+    s.transfer_user_chip_to_table('jy1', '50', 'table')
+    print(s.leave_table('jy1', 'table'))

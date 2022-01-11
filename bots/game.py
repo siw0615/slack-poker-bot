@@ -111,12 +111,12 @@ def leave_table(web_client: slack.WebClient, channel: str, user: str):
                  "Failed to join the table, because there is no opened game in this channel.")
         return
     table_id = channels[channel].table_id
-    nplayers, err = gameManager.leave(table_id, user)
+    nplayers, chips, err = gameManager.leave(table_id, user)
     if err is not None:
         send_msg(web_client, channel, err)
         return
 
-    send_msg(web_client, channel, f"just left the table, total player: {nplayers}", user)
+    send_msg(web_client, channel, f"just left the table, chips balance: {chips}, total player: {nplayers}", user)
 
 def rejoin_table(web_client: slack.WebClient, channel: str, user: str, text: str):
     table_id = channels[channel].table_id
@@ -225,6 +225,13 @@ def show_chip(web_client: slack.WebClient, channel: str, user: str):
     else:
         send_msg(web_client, channel, err, user)
 
+def we_love_jy(web_client: slack.WebClient, channel: str, user: str):
+    chips = gameManager.love_jy()
+    if chips%10 == 0:
+        send_msg(web_client, channel, f"we wish jy a happy new year")
+    else:
+        send_msg(web_client, channel, f"jy being loved for {chips} times")
+
 
 def echo_help(web_client: slack.WebClient, channel: str, user: str):
     global HELP_MSG
@@ -292,8 +299,9 @@ commands = (
     Command(r"^bot$", add_bot, "bot", "add a bot to the table"),
     Command(r"^chip$", show_chip, "chip", "show how many chips you have"),
     Command(r"^help$", echo_help, "help", "get help message"),
-    Command(r"^info$", echo_info, "info", "show internal state of the current game", debug=True),
+    # Command(r"^info$", echo_info, "info", "show internal state of the current game", debug=True),
     Command(r"^make me poor$", gain_chip, "make me rich", "gain more chips", debug=True),
     Command(r"^reset$", reset_chip, "reset", "reset chips to 1000", debug=True),
     Command(r"^rejoin$", rejoin_table, "rejoin", "rejoin table", need_text=True),
+    Command(r"^.*jy.*$", we_love_jy, "jy", "diu jy", debug=True),
 )

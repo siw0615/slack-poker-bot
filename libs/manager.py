@@ -94,6 +94,11 @@ class GameManager:
             return 0, err
         return chips, None
 
+    def love_jy(self):
+        err = self.storage.jy_counter()
+        chips, err = self.storage.fetch_user_chip('jy')
+        return chips
+
 
 gameManager = GameManager()
 
