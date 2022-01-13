@@ -12,6 +12,7 @@ from .poker_cmp import poker7
 from .player import Player
 from .card import Card
 
+logger = logging.getLogger(__name__)
 
 class GameStatus(IntEnum):
     WAITING = 1

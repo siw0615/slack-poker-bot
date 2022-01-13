@@ -78,7 +78,7 @@ class GameManager:
         return self.storage.create_user(user_id, 500)
 
     def gain_chip(self, user_id) -> str:
-        err = self.storage.change_user_chip(user_id, 500)
+        err = self.storage.change_user_chip(user_id, 5000)
         return err
 
     def reset_chip(self, user_id) -> str:

@@ -122,7 +122,7 @@ def rejoin_table(web_client: slack.WebClient, channel: str, user: str, text: str
     table_id = channels[channel].table_id
     username = _get_username(text, web_client, user)
 
-    nplayers, err = gameManager.leave(table_id, user)
+    nplayers, chips, err = gameManager.leave(table_id, user)
     
     if channel not in channels.keys():
         send_msg(web_client, channel,
@@ -301,7 +301,7 @@ commands = (
     Command(r"^help$", echo_help, "help", "get help message"),
     # Command(r"^info$", echo_info, "info", "show internal state of the current game", debug=True),
     Command(r"^make me poor$", gain_chip, "make me rich", "gain more chips", debug=True),
-    Command(r"^reset$", reset_chip, "reset", "reset chips to 1000", debug=True),
+    Command(r"^res chips$", reset_chip, "reset", "reset chips to 1000", debug=True),
     Command(r"^rejoin$", rejoin_table, "rejoin", "rejoin table", need_text=True),
     Command(r"^.*jy.*$", we_love_jy, "jy", "diu jy", debug=True),
 )
